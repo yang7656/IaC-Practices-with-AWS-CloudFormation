@@ -74,7 +74,8 @@
         "KeyName": {"Ref": "KeyPair"},
         "ImageId": "ami-01cc34ab2709337aa",
         "SubnetId": {"Ref": "PublicSubnet1"},
-        "IamInstanceProfile": {"Ref": "WebInstanceProfile"}
+        "IamInstanceProfile": {"Ref": "WebInstanceProfile"},
+        "UserData": "#!/bin/bash\nyum update -y\nyum install -y git httpd php\nservice httpd start\nchkconfig httpd on\naws s3 cp s3://seis665-public/index.php /var/www/html/"
       }
     },
     "web2": {
@@ -84,8 +85,18 @@
         "KeyName": {"Ref": "KeyPair"},
         "ImageId": "ami-01cc34ab2709337aa",
         "SubnetId": {"Ref": "PublicSubnet2"},
-        "IamInstanceProfile": {"Ref": "WebInstanceProfile"}
+        "IamInstanceProfile": {"Ref": "WebInstanceProfile"},
+        "UserData": "#!/bin/bash\nyum update -y\nyum install -y git httpd php\nservice httpd start\nchkconfig httpd on\naws s3 cp s3://seis665-public/index.php /var/www/html/"
       }
+    },
+    "WebserversSG": {
+
+    },
+    "EngineeringLB": {
+
+    },
+    "EngineeringWebservers": {
+      
     }
 
   }
