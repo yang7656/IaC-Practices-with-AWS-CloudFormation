@@ -89,7 +89,27 @@
         "UserData": "#!/bin/bash\nyum update -y\nyum install -y git httpd php\nservice httpd start\nchkconfig httpd on\naws s3 cp s3://seis665-public/index.php /var/www/html/"
       }
     },
+
     "WebserversSG": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupName": "WebserversSG",
+        "VpcId": {"Ref": "EngineeringVpc"},
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": {"Ref": "YourIp"}
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
 
     },
     "EngineeringLB": {
