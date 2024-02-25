@@ -12,7 +12,7 @@
       "ConstraintDescription": "Must be a valid EC2 type."
     },
     "YourIP": {
-      "Description": "Your IP address in CIDR format + '/32' or '/64'",
+      "Description": "Your IP address in CIDR format + '/32'",
       "Type": "String"
     },
     "KeyPair": {
@@ -27,22 +27,37 @@
         "CidrBlock": "10.0.0.0/18"
       }
     },
+
+
+
+    "EngineeringInternetGateway": {
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {"Ref": "EngineeringVpc"},
+        "InternetGatewayId": {"Ref": "EngineeringInternetGateway"}
+      }
+    },
+
+
     "PublicSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
-        "CidrBlock": "10.0.0.0/24"
+        "CidrBlock": "10.0.0.0/24",
+        "AvailabilityZone": "us-east-1a"
       }
     },
     "PublicSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
-        "CidrBlock": "10.0.1.0/24"
+        "CidrBlock": "10.0.1.0/24",
+        "AvailabilityZone": "us-east-1b"
       }
     },
-
-
 
 
     "WebInstanceRole": {
@@ -67,6 +82,7 @@
       }    
     },
 
+
     "web1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -75,7 +91,18 @@
         "ImageId": "ami-01cc34ab2709337aa",
         "SubnetId": {"Ref": "PublicSubnet1"},
         "IamInstanceProfile": {"Ref": "WebInstanceProfile"},
-        "UserData": "#!/bin/bash\nyum update -y\nyum install -y git httpd php\nservice httpd start\nchkconfig httpd on\naws s3 cp s3://seis665-public/index.php /var/www/html/"
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": ["", [
+              "#!/bin/bash\n",
+              "yum update -y\n",
+              "yum install -y git httpd php\n",
+              "service httpd start\n",
+              "chkconfig httpd on\n",
+              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+            ]]
+          }
+        }
       }
     },
     "web2": {
@@ -86,9 +113,21 @@
         "ImageId": "ami-01cc34ab2709337aa",
         "SubnetId": {"Ref": "PublicSubnet2"},
         "IamInstanceProfile": {"Ref": "WebInstanceProfile"},
-        "UserData": "#!/bin/bash\nyum update -y\nyum install -y git httpd php\nservice httpd start\nchkconfig httpd on\naws s3 cp s3://seis665-public/index.php /var/www/html/"
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": ["", [
+              "#!/bin/bash\n",
+              "yum update -y\n",
+              "yum install -y git httpd php\n",
+              "service httpd start\n",
+              "chkconfig httpd on\n",
+              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+            ]]
+          }
+        }
       }
     },
+
 
     "WebserversSG": {
       "Type" : "AWS::EC2::SecurityGroup",
@@ -100,7 +139,7 @@
             "IpProtocol": "tcp",
             "FromPort": 22,
             "ToPort": 22,
-            "CidrIp": {"Ref": "YourIp"}
+            "CidrIp": {"Ref": "YourIP"}
           },
           {
             "IpProtocol": "tcp",
@@ -108,17 +147,53 @@
             "ToPort": 80,
             "CidrIp": "0.0.0.0/0"
           }
-        ]
+        ],
+        "GroupDescription": "Security group for web servers"
       }
 
     },
-    "EngineeringLB": {
-
-    },
     "EngineeringWebservers": {
-      
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "VpcId": {"Ref": "EngineeringVpc"},
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetType": "instance",
+        "HealthCheckProtocol": "HTTP",
+        "HealthCheckPort": "80",
+        "HealthCheckPath": "/",
+        "HealthCheckIntervalSeconds": 30,
+        "HealthCheckTimeoutSeconds": 5,
+        "HealthyThresholdCount": 5,
+        "UnhealthyThresholdCount": 2
+      }
+    },
+    "EngineeringLB": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Subnets": [
+          {"Ref": "PublicSubnet1"},
+          {"Ref": "PublicSubnet2"}
+        ],
+        "SecurityGroups": [{"Ref": "WebserversSG"}],
+        "Type": "application"
+      }
+    },
+    "LBListener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "Type": "forward",
+            "TargetGroupArn": {"Ref": "EngineeringWebservers"}
+          }
+        ],
+        "LoadBalancerArn": {"Ref": "EngineeringLB"},
+        "Port": 80,
+        "Protocol": "HTTP"
+      }
     }
+    
 
   }
-  
 }
