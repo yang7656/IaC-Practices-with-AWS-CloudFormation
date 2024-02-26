@@ -37,15 +37,36 @@
         "InternetGatewayId": {"Ref": "EngineeringInternetGateway"}
       }
     },
-
-
+  
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "EngineeringVpc"
+        }
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "GatewayId": {
+          "Ref": "EngineeringInternetGateway"
+        }
+      },
+      "DependsOn": [
+        "EngineeringInternetGateway"
+      ]
+    },
     "PublicSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
         "CidrBlock": "10.0.0.0/24",
-        "AvailabilityZone": "us-east-1a",
-        "MapPublicIpOnLaunch": true
+        "AvailabilityZone": {"Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]}
       }
     },
     "PublicSubnet2": {
@@ -53,21 +74,20 @@
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
         "CidrBlock": "10.0.1.0/24",
-        "AvailabilityZone": "us-east-1b",
-        "MapPublicIpOnLaunch": true
+        "AvailabilityZone": {"Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]}
       }
     },
-
-
-
-    
-    
-    
-
-
-
-
-
+    "PublicSubnet1RTassoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet1"
+        }
+      }
+    },
     "WebInstanceRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -89,8 +109,6 @@
         "Roles": [{"Ref": "WebInstanceRole"}]
       }    
     },
-
-
     "web1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -139,8 +157,6 @@
         ]
       }
     },
-
-
     "WebserversSG": {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
@@ -162,7 +178,6 @@
         ],
         "GroupDescription": "Security group for web servers"
       }
-
     },
     "EngineeringWebservers": {
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
