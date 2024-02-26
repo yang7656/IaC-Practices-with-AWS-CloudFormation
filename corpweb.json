@@ -44,7 +44,8 @@
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
         "CidrBlock": "10.0.0.0/24",
-        "AvailabilityZone": "us-east-1a"
+        "AvailabilityZone": "us-east-1a",
+        "MapPublicIpOnLaunch": true
       }
     },
     "PublicSubnet2": {
@@ -52,7 +53,8 @@
       "Properties": {
         "VpcId": {"Ref": "EngineeringVpc"},
         "CidrBlock": "10.0.1.0/24",
-        "AvailabilityZone": "us-east-1b"
+        "AvailabilityZone": "us-east-1b",
+        "MapPublicIpOnLaunch": true
       }
     },
 
