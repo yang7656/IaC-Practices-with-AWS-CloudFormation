@@ -219,7 +219,7 @@
     }
   },
   "Outputs": {
-    "DNSName": {
+    "WebUrl": {
       "Description": "The DNS name of the load balancer",
       "Value": {"Fn::GetAtt": ["EngineeringLB", "DNSName"]}
     }
