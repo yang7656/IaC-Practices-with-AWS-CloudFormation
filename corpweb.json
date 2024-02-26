@@ -27,9 +27,6 @@
         "CidrBlock": "10.0.0.0/18"
       }
     },
-
-
-
     "EngineeringInternetGateway": {
       "Type": "AWS::EC2::InternetGateway"
     },
@@ -193,7 +190,15 @@
         "Protocol": "HTTP"
       }
     }
-    
-
+  },
+  "Outputs": {
+    "DNSName": {
+      "Description": "The DNS name of the load balancer",
+      "Value": {"Fn::GetAtt": ["EngineeringLB", "DNSName"]}
+    },
+    "InstanceID": {
+      "Description": "The Instance ID",
+      "Value": {"Ref": "web1"}
+    }
   }
 }
