@@ -99,7 +99,13 @@
               "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
             ]]
           }
-        }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web1"
+          }
+        ]
       }
     },
     "web2": {
@@ -121,7 +127,13 @@
               "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
             ]]
           }
-        }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web1"
+          }
+        ]
       }
     },
 
