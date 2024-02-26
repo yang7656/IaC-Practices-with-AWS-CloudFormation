@@ -158,11 +158,7 @@
         "TargetType": "instance",
         "HealthCheckProtocol": "HTTP",
         "HealthCheckPort": "80",
-        "HealthCheckPath": "/",
-        "HealthCheckIntervalSeconds": 30,
-        "HealthCheckTimeoutSeconds": 5,
-        "HealthyThresholdCount": 5,
-        "UnhealthyThresholdCount": 2
+        "HealthCheckPath": "/"
       }
     },
     "EngineeringLB": {
@@ -195,10 +191,6 @@
     "DNSName": {
       "Description": "The DNS name of the load balancer",
       "Value": {"Fn::GetAtt": ["EngineeringLB", "DNSName"]}
-    },
-    "InstanceID": {
-      "Description": "The Instance ID",
-      "Value": {"Ref": "web1"}
     }
   }
 }
