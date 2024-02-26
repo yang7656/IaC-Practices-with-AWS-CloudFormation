@@ -57,6 +57,15 @@
     },
 
 
+
+    
+    
+    
+
+
+
+
+
     "WebInstanceRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -92,11 +101,7 @@
           "Fn::Base64": {
             "Fn::Join": ["", [
               "#!/bin/bash\n",
-              "yum update -y\n",
-              "yum install -y git httpd php\n",
-              "service httpd start\n",
-              "chkconfig httpd on\n",
-              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+              "yum update -y && yum install -y git httpd php && service httpd start && chkconfig httpd on && aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
             ]]
           }
         },
@@ -120,18 +125,14 @@
           "Fn::Base64": {
             "Fn::Join": ["", [
               "#!/bin/bash\n",
-              "yum update -y\n",
-              "yum install -y git httpd php\n",
-              "service httpd start\n",
-              "chkconfig httpd on\n",
-              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+              "yum update -y && yum install -y git httpd php && service httpd start && chkconfig httpd on && aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
             ]]
           }
         },
         "Tags": [
           {
             "Key": "Name",
-            "Value": "web1"
+            "Value": "web2"
           }
         ]
       }
@@ -175,6 +176,7 @@
     },
     "EngineeringLB": {
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "DependsOn": "AttachGateway",
       "Properties": {
         "Subnets": [
           {"Ref": "PublicSubnet1"},
